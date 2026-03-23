@@ -1,0 +1,12 @@
+# Arquivos compilados
+*.class
+
+# Pastas de build/compilação
+bin/
+out/
+target/
+
+# Outros arquivos desnecessários
+*.jar
+*.log
+.vscode/

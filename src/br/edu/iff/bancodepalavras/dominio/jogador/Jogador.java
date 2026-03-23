@@ -2,7 +2,7 @@ package br.edu.iff.bancodepalavras.dominio.jogador;
 
 public class Jogador {
 
-    private long id;
+    private final long id;
     private String nome;
     private int pontuacao = 0;
 

@@ -1,9 +1,9 @@
 package br.edu.iff.bancodepalavras.dominio.palavra;
 
 import br.edu.iff.bancodepalavras.dominio.letra.Letra;
-import br.edu.iff.bancodepalavras.dominio.letra.texto.LetraTextoFactory; 
 import br.edu.iff.bancodepalavras.dominio.tema.Tema;
 import br.edu.iff.dominio.ObjetoDominioImpl;
+import br.edu.iff.jogoforca.Aplicacao; // Importando o Cérebro do Jogo!
 
 public class Palavra extends ObjetoDominioImpl {
     
@@ -17,24 +17,25 @@ public class Palavra extends ObjetoDominioImpl {
         this.tema = tema;
         this.letras = new Letra[palavra.length()];
         
-        // O diagrama pede para usar a fábrica da classe Aplicacao para instanciar as letras.
-        // Como ainda não criamos a Aplicacao, estamos usando a LetraTextoFactory 
-        // diretamente aqui para que seu código compile e você possa testar.
         for (int i = 0; i < palavra.length(); i++) {
-            this.letras[i] = LetraTextoFactory.getSoleInstance().getLetra(palavra.charAt(i));
+            // 1. Transformamos a letra em minúscula para a fábrica não bugar na conta matemática
+            char charMinusculo = Character.toLowerCase(palavra.charAt(i));
+            
+            // 2. Puxamos a letra da fábrica correta que a Aplicação escolheu!
+            this.letras[i] = Aplicacao.getSoleInstance().getLetraFactory().getLetra(charMinusculo);
         }
     }
 
     public Tema getTema() {
-        return tema; 
+        return tema;
     }
 
     public int getTamanho() {
-        return letras.length; 
+        return letras.length;
     }
 
     public Letra getLetra(int posicao) {
-        return letras[posicao]; 
+        return letras[posicao];
     }
 
     public boolean comparar(String palavraArriscada) {
@@ -52,10 +53,10 @@ public class Palavra extends ObjetoDominioImpl {
     public void exibir(Object contexto, boolean[] posicoesDescobertas) {
         for (int i = 0; i < letras.length; i++) {
             if (posicoesDescobertas != null && i < posicoesDescobertas.length && posicoesDescobertas[i]) {
-                letras[i].exibir(contexto); // Exibe a letra real se o jogador já descobriu
+                letras[i].exibir(contexto); 
             } else {
-                // Se não descobriu, exibe o caractere oculto (ex: '*')
-                LetraTextoFactory.getSoleInstance().getLetraEncoberta().exibir(contexto);
+                // Puxamos o asterisco da fábrica correta também
+                Aplicacao.getSoleInstance().getLetraFactory().getLetraEncoberta().exibir(contexto);
             }
         }
     }

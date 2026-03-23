@@ -13,10 +13,10 @@ public class Rodada extends ObjetoDominioImpl {
     private static final int pontosQuandoDescobreTodasAsPalavras = 100;
     private static final int pontosPorLetraEncoberta = 15; 
 
-    private Item[] itens;
-    private Letra[] erradas;
+    private final Item[] itens;
+    private final Letra[] erradas;
     private int qtdeErros = 0; 
-    private Jogador jogador;
+    private final Jogador jogador;
 
     protected Rodada(long id, Palavra[] palavras, Jogador jogador) {
         super(id);
@@ -74,9 +74,8 @@ public class Rodada extends ObjetoDominioImpl {
 
         // Se a letra não tem em nenhuma palavra e ainda não atingiu o limite de erros
         if (!acertouAlguma && qtdeErros < maxErros) {
-            // Nota: Para injetar a Letra correta, você deverá buscar da LetraFactory da sua Aplicação.
-            // Para manter a lógica pura, vamos assumir que o sistema consegue gerar a letra.
-            // erradas[qtdeErros] = Aplicacao.getSoleInstance().getLetraFactory().getLetra(codigo);
+            // Pede para a Aplicação a fábrica de letras gráfica correta e gera a letra errada
+            erradas[qtdeErros] = br.edu.iff.jogoforca.Aplicacao.getSoleInstance().getLetraFactory().getLetra(codigo);
             qtdeErros++;
         }
 
@@ -146,6 +145,7 @@ public class Rodada extends ObjetoDominioImpl {
         if (itens != null) {
             for (Item item : itens) {
                 item.exibir(contexto);
+                System.out.println(); // Pula uma linha após cada palavra
             }
         }
     }
@@ -154,15 +154,14 @@ public class Rodada extends ObjetoDominioImpl {
         for (int i = 0; i < qtdeErros; i++) {
             if (erradas[i] != null) {
                 erradas[i].exibir(contexto);
+                System.out.print(" "); // Adiciona um espaço entre as letras erradas
             }
         }
     }
 
     public void exibirBoneco(Object contexto) {
-        // Como ainda não temos a classe Aplicacao pronta, 
-        // deixamos preparado o comentário do que deverá ser feito:
-        // Boneco boneco = Aplicacao.getSoleInstance().getBonecoFactory().getBoneco();
-        // boneco.exibir(contexto, qtdeErros);
+        br.edu.iff.jogoforca.dominio.boneco.Boneco boneco = br.edu.iff.jogoforca.Aplicacao.getSoleInstance().getBonecoFactory().getBoneco();
+        boneco.exibir(contexto, qtdeErros);
     }
     
     // Método estático para permitir que a fábrica crie a rodada
