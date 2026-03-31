@@ -1,28 +1,30 @@
 package br.edu.iff.bancodepalavras.dominio.palavra;
 
 import br.edu.iff.bancodepalavras.dominio.tema.Tema;
-import br.edu.iff.bancodepalavras.dominio.tema.TemaFactory;
 import br.edu.iff.bancodepalavras.dominio.tema.TemaRepository;
 import br.edu.iff.repository.RepositoryException;
 
 public class PalavraAppService {
 
     private static PalavraAppService soleInstance;
+
     private final PalavraRepository palavraRepository;
     private final PalavraFactory palavraFactory;
     private final TemaRepository temaRepository;
-    private final TemaFactory temaFactory;
 
-    private PalavraAppService(PalavraRepository palavraRepository, PalavraFactory palavraFactory, TemaRepository temaRepository, TemaFactory temaFactory) {
+    private PalavraAppService(TemaRepository temaRepository,
+                               PalavraRepository palavraRepository,
+                               PalavraFactory palavraFactory) {
+        this.temaRepository = temaRepository;
         this.palavraRepository = palavraRepository;
         this.palavraFactory = palavraFactory;
-        this.temaRepository = temaRepository;
-        this.temaFactory = temaFactory;
     }
 
-    public static void createSoleInstance(PalavraRepository palavraRepository, PalavraFactory palavraFactory, TemaRepository temaRepository, TemaFactory temaFactory) {
+    public static void createSoleInstance(TemaRepository temaRepository,
+                                           PalavraRepository palavraRepository,
+                                           PalavraFactory palavraFactory) {
         if (soleInstance == null) {
-            soleInstance = new PalavraAppService(palavraRepository, palavraFactory, temaRepository, temaFactory);
+            soleInstance = new PalavraAppService(temaRepository, palavraRepository, palavraFactory);
         }
     }
 
@@ -30,28 +32,23 @@ public class PalavraAppService {
         return soleInstance;
     }
 
-    public boolean novaPalavra(String stringPalavra, String nomeTema) throws RepositoryException {
-        // Se a palavra já existe no repositório, não recriamos
-        if (palavraRepository.getPalavra(stringPalavra) != null) {
+
+    public boolean novaPalavra(String palavra, long idTema) {
+        if (palavraRepository.getPalavra(palavra) != null) {
+            return true;
+        }
+
+        Tema tema = temaRepository.getPorId(idTema);
+        if (tema == null) {
             return false;
         }
 
-        Tema tema;
-        Tema[] temasEncontrados = temaRepository.getPorNome(nomeTema);
-        
-        // Se o tema não existe, a gente cria e já salva ele no banco
-        if (temasEncontrados == null || temasEncontrados.length == 0) {
-            tema = temaFactory.getTema(nomeTema);
-            temaRepository.inserir(tema);
-        } else {
-            // Se já existe, pegamos o primeiro da lista
-            tema = temasEncontrados[0];
+        try {
+            Palavra novaPalavra = palavraFactory.getPalavra(palavra, tema);
+            palavraRepository.inserir(novaPalavra);
+            return true;
+        } catch (RepositoryException e) {
+            return false;
         }
-
-        // Finalmente, cria a palavra e insere no repositório
-        Palavra palavra = palavraFactory.getPalavra(stringPalavra, tema);
-        palavraRepository.inserir(palavra);
-        
-        return true;
     }
 }

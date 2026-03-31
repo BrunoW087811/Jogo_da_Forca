@@ -1,28 +1,30 @@
 package br.edu.iff.jogoforca.dominio.rodada;
 
 import br.edu.iff.jogoforca.dominio.jogador.Jogador;
-import br.edu.iff.jogoforca.dominio.jogador.JogadorFactory;
 import br.edu.iff.jogoforca.dominio.jogador.JogadorRepository;
 import br.edu.iff.repository.RepositoryException;
 
 public class RodadaAppService {
 
     private static RodadaAppService soleInstance;
-    private RodadaRepository rodadaRepository;
-    private RodadaFactory rodadaFactory;
-    private JogadorRepository jogadorRepository;
-    private JogadorFactory jogadorFactory;
 
-    private RodadaAppService(RodadaRepository rodadaRepository, RodadaFactory rodadaFactory, JogadorRepository jogadorRepository, JogadorFactory jogadorFactory) {
-        this.rodadaRepository = rodadaRepository;
+    private final RodadaFactory rodadaFactory;
+    private final RodadaRepository rodadaRepository;
+    private final JogadorRepository jogadorRepository;
+
+    private RodadaAppService(RodadaFactory rodadaFactory,
+                              RodadaRepository rodadaRepository,
+                              JogadorRepository jogadorRepository) {
         this.rodadaFactory = rodadaFactory;
+        this.rodadaRepository = rodadaRepository;
         this.jogadorRepository = jogadorRepository;
-        this.jogadorFactory = jogadorFactory;
     }
 
-    public static void createSoleInstance(RodadaRepository rodadaRepository, RodadaFactory rodadaFactory, JogadorRepository jogadorRepository, JogadorFactory jogadorFactory) {
+    public static void createSoleInstance(RodadaFactory rodadaFactory,
+                                           RodadaRepository rodadaRepository,
+                                           JogadorRepository jogadorRepository) {
         if (soleInstance == null) {
-            soleInstance = new RodadaAppService(rodadaRepository, rodadaFactory, jogadorRepository, jogadorFactory);
+            soleInstance = new RodadaAppService(rodadaFactory, rodadaRepository, jogadorRepository);
         }
     }
 
@@ -30,26 +32,26 @@ public class RodadaAppService {
         return soleInstance;
     }
 
-    public Rodada novaRodada(String nomeJogador) throws RepositoryException {
-        Jogador jogador = jogadorRepository.getPorNome(nomeJogador);
-        
-        // Se o jogador não for encontrado no banco, a gente cadastra ele na hora!
-        if (jogador == null) {
-            jogador = jogadorFactory.getJogador(nomeJogador);
-            jogadorRepository.inserir(jogador);
-        }
-
-        // Pede para a fábrica criar uma rodada (que já vai fazer aquele sorteio de palavras por debaixo dos panos)
-        Rodada rodada = rodadaFactory.getRodada(jogador);
-        
-        if (rodada != null) {
-            rodadaRepository.inserir(rodada);
-        }
-        
-        return rodada;
+    public Rodada novaRodada(long idJogador) {
+        Jogador jogador = jogadorRepository.getPorId(idJogador);
+        if (jogador == null) return null;
+        return rodadaFactory.getRodada(jogador);
     }
 
-    public void salvarRodada(Rodada rodada) throws RepositoryException {
-        rodadaRepository.atualizar(rodada);
+    public Rodada novaRodada(String nomeJogador) throws JogadorNaoEncontradoException {
+        Jogador jogador = jogadorRepository.getPorNome(nomeJogador);
+        if (jogador == null) {
+            throw new JogadorNaoEncontradoException(nomeJogador);
+        }
+        return rodadaFactory.getRodada(jogador);
+    }
+
+    public boolean salvarRodada(Rodada rodada) {
+        try {
+            rodadaRepository.inserir(rodada);
+            return true;
+        } catch (RepositoryException e) {
+            return false;
+        }
     }
 }
