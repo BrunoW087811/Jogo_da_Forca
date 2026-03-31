@@ -4,7 +4,7 @@ import br.edu.iff.bancodepalavras.dominio.tema.Tema;
 import br.edu.iff.factory.EntityFactory;
 
 public class PalavraFactoryImpl extends EntityFactory implements PalavraFactory {
-    
+
     private static PalavraFactoryImpl soleInstance;
 
     public static void createSoleInstance(PalavraRepository repository) {
@@ -21,13 +21,14 @@ public class PalavraFactoryImpl extends EntityFactory implements PalavraFactory 
         super(repository);
     }
 
-    @SuppressWarnings("unused")
     private PalavraRepository getPalavraRepository() {
         return (PalavraRepository) getRepository();
     }
 
     @Override
     public Palavra getPalavra(String palavra, Tema tema) {
-        return new Palavra(getProximoId(), palavra, tema);
+        Palavra existente = getPalavraRepository().getPalavra(palavra);
+        if (existente != null) return existente;
+        return Palavra.criar(getProximoId(), palavra, tema);
     }
 }

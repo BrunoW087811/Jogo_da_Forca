@@ -1,9 +1,7 @@
 package br.edu.iff.bancodepalavras.dominio.letra;
 
-import java.util.Objects;
-
 public abstract class Letra {
-    
+
     @SuppressWarnings("FieldMayBeFinal")
     private char codigo;
 
@@ -15,20 +13,22 @@ public abstract class Letra {
         return codigo;
     }
 
-    // O parâmetro 'contexto' permite que a letra seja exibida em diferentes 
-    // interfaces (Texto, Web, etc.) [cite: 4, 5]
     public abstract void exibir(Object contexto);
 
-    // No diagrama, Letra possui equals e hashCode para funcionar no Flyweight [cite: 137, 207, 211]
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Letra)) return false;
-        Letra outra = (Letra) obj;
-        return this.codigo == outra.codigo;
+    public final boolean equals(Object o) {
+        if (!(o instanceof Letra)) return false;
+        Letra outra = (Letra) o;
+        return this.codigo == outra.codigo && this.getClass().equals(outra.getClass());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(codigo);
+    public final int hashCode() {
+        return this.codigo + this.getClass().hashCode();
+    }
+
+    @Override
+    public final String toString() {
+        return String.valueOf(codigo);
     }
 }

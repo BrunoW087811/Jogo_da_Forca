@@ -30,7 +30,7 @@ public class RodadaSorteioFactory extends RodadaFactoryImpl {
     @Override
     public Rodada getRodada(Jogador jogador) {
         // 1. Pega todos os temas salvos no banco
-        Tema[] todosOsTemas = getTemaRepository().getTodas();
+        Tema[] todosOsTemas = getTemaRepository().getTodos();
         if (todosOsTemas == null || todosOsTemas.length == 0) return null; // Prevenção de erro
 
         // 2. Sorteia um índice aleatório para escolher o tema

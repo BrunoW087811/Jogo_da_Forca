@@ -1,16 +1,16 @@
 package br.edu.iff.jogoforca.dominio.rodada.emmemoria;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import br.edu.iff.jogoforca.dominio.jogador.Jogador;
 import br.edu.iff.jogoforca.dominio.rodada.Rodada;
 import br.edu.iff.jogoforca.dominio.rodada.RodadaRepository;
 import br.edu.iff.repository.RepositoryException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MemoriaRodadaRepository implements RodadaRepository {
 
     private static MemoriaRodadaRepository soleInstance;
+    @SuppressWarnings("FieldMayBeFinal")
     private List<Rodada> pool = new ArrayList<>();
     private long idCounter = 1;
 
@@ -37,13 +37,16 @@ public class MemoriaRodadaRepository implements RodadaRepository {
     }
 
     @Override
-    public Rodada[] getPorJogador(Jogador jogador) {
-        List<Rodada> encontradas = new ArrayList<>();
-        // Como o diagrama não exigiu um getJogador() na Rodada, 
-        // em um caso real você compararia o jogador interno da rodada.
-        // Vamos apenas retornar vazio por segurança por enquanto.
-        return encontradas.toArray(new Rodada[encontradas.size()]);
+    @SuppressWarnings("CollectionsToArray")
+public Rodada[] getPorJogador(Jogador jogador) {
+    List<Rodada> encontradas = new ArrayList<>();
+    for (Rodada rodada : pool) {
+        if (rodada.getJogador().getId() == jogador.getId()) {
+            encontradas.add(rodada);
+        }
     }
+    return encontradas.toArray(new Rodada[0]);
+}
 
     @Override
     public void inserir(Rodada rodada) throws RepositoryException {
