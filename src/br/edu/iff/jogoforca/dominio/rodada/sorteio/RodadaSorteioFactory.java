@@ -8,11 +8,9 @@ import br.edu.iff.jogoforca.dominio.jogador.Jogador;
 import br.edu.iff.jogoforca.dominio.rodada.Rodada;
 import br.edu.iff.jogoforca.dominio.rodada.RodadaFactoryImpl;
 import br.edu.iff.jogoforca.dominio.rodada.RodadaRepository;
-
 public class RodadaSorteioFactory extends RodadaFactoryImpl {
     
     private static RodadaSorteioFactory soleInstance;
-
     public static void createSoleInstance(RodadaRepository repository, TemaRepository temaRepository, PalavraRepository palavraRepository) {
         if (soleInstance == null) {
             soleInstance = new RodadaSorteioFactory(repository, temaRepository, palavraRepository);
@@ -31,7 +29,8 @@ public class RodadaSorteioFactory extends RodadaFactoryImpl {
     public Rodada getRodada(Jogador jogador) {
         // 1. Pega todos os temas salvos no banco
         Tema[] todosOsTemas = getTemaRepository().getTodos();
-        if (todosOsTemas == null || todosOsTemas.length == 0) return null; // Prevenção de erro
+        if (todosOsTemas == null || todosOsTemas.length == 0) return null;
+        // Prevenção de erro
 
         // 2. Sorteia um índice aleatório para escolher o tema
         int indexTema = (int) (Math.random() * todosOsTemas.length);
@@ -40,11 +39,11 @@ public class RodadaSorteioFactory extends RodadaFactoryImpl {
         // 3. Pega todas as palavras associadas ao tema sorteado
         Palavra[] palavrasDoTema = getPalavraRepository().getPorTema(temaSorteado);
         if (palavrasDoTema == null || palavrasDoTema.length == 0) return null;
-
-        // 4. Sorteia no máximo 3 palavras (limite da rodada) sem repetições
-        int qtdSorteada = Math.min(3, palavrasDoTema.length); 
+        // 4. Sorteia aleatoriamente quantas palavras serão usadas: 1, 2 ou 3
+        //    conforme o enunciado: "sorteia se mostrará uma, duas ou três palavras"
+        int maxPossivel = Math.min(3, palavrasDoTema.length);
+        int qtdSorteada = 1 + (int) (Math.random() * maxPossivel); // entre 1 e maxPossivel
         Palavra[] sorteadas = new Palavra[qtdSorteada];
-        
         // Usamos as bibliotecas do Java apenas para embaralhar a lista de palavras
         java.util.List<Palavra> listaParaEmbaralhar = new java.util.ArrayList<>(java.util.Arrays.asList(palavrasDoTema));
         java.util.Collections.shuffle(listaParaEmbaralhar);

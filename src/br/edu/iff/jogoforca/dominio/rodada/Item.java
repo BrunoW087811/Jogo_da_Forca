@@ -2,20 +2,22 @@ package br.edu.iff.jogoforca.dominio.rodada;
 
 import br.edu.iff.bancodepalavras.dominio.letra.Letra;
 import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
-
 public class Item {
 
+    private final int id;
     private final Palavra palavra;
     private final boolean[] posicoesDescobertas;
     private String palavraArriscada = null;
 
-    private Item(Palavra palavra) {
+    private Item(int id, Palavra palavra) {
+        this.id = id;
         this.palavra = palavra;
         this.posicoesDescobertas = new boolean[palavra.getTamanho()];
     }
 
     // Construtor privado para reconstituir item do banco
-    private Item(Palavra palavra, int[] posicoesDescobertasIdx, String palavraArriscada) {
+    private Item(int id, Palavra palavra, int[] posicoesDescobertasIdx, String palavraArriscada) {
+        this.id = id;
         this.palavra = palavra;
         this.palavraArriscada = palavraArriscada;
         this.posicoesDescobertas = new boolean[palavra.getTamanho()];
@@ -30,16 +32,19 @@ public class Item {
 
     // Fábrica para criar novo item (package-private - só Rodada acessa)
     @SuppressWarnings("unused")
-    static Item criar(Palavra palavra) {
-        return new Item(palavra);
+    static Item criar(int id, Palavra palavra) {
+        return new Item(id, palavra);
     }
 
     // Fábrica para reconstituir item existente (package-private)
     @SuppressWarnings("unused")
     static Item reconstituir(int id, Palavra palavra, int[] posicoesDescobertas, String palavraArriscada) {
-        return new Item(palavra, posicoesDescobertas, palavraArriscada);
+        return new Item(id, palavra, posicoesDescobertas, palavraArriscada);
     }
 
+    public int getId() {
+        return id;
+    }
 
     public Palavra getPalavra() {
         return palavra;
@@ -58,7 +63,8 @@ public class Item {
     }
 
     public boolean descobriu() {
-        return acertou() || qtdeLetrasEncobertas() == 0;
+        return acertou() ||
+        qtdeLetrasEncobertas() == 0;
     }
 
     public int qtdeLetrasEncobertas() {
@@ -104,7 +110,6 @@ public class Item {
         }
     }
 
-    // Package-private: só Rodada chama
     public boolean tentar(char codigo) {
         int[] posicoes = palavra.tentar(codigo);
         for (int pos : posicoes) {
