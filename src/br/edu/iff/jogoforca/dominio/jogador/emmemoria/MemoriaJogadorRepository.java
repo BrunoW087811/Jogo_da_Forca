@@ -43,6 +43,12 @@ public class MemoriaJogadorRepository implements JogadorRepository {
         }
         return null;
     }
+    
+    @Override
+    @SuppressWarnings("CollectionsToArray")
+    public Jogador[] getTodos() {
+        return pool.toArray(new Jogador[0]);
+    }
 
     @Override
     public void inserir(Jogador jogador) throws RepositoryException {

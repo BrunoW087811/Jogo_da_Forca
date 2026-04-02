@@ -7,7 +7,6 @@ import br.edu.iff.dominio.ObjetoDominioImpl;
 import br.edu.iff.jogoforca.dominio.boneco.Boneco;
 import br.edu.iff.jogoforca.dominio.boneco.BonecoFactory;
 import br.edu.iff.jogoforca.dominio.jogador.Jogador;
-
 public class Rodada extends ObjetoDominioImpl {
 
     // Campos de configuração estáticos (setados pela Aplicacao.configurar())
@@ -22,7 +21,6 @@ public class Rodada extends ObjetoDominioImpl {
     private final Letra[] erradas;
     private int qtdeErros = 0;
     private final Jogador jogador;
-
     // Construtor para nova rodada a partir de palavras sorteadas
     private Rodada(long id, Palavra[] palavras, Jogador jogador) {
         super(id);
@@ -36,11 +34,10 @@ public class Rodada extends ObjetoDominioImpl {
         int numPalavras = Math.min(palavras.length, maxPalavras);
         this.itens = new Item[numPalavras];
         for (int i = 0; i < numPalavras; i++) {
-            this.itens[i] = Item.criar(palavras[i]);
+            this.itens[i] = Item.criar(i, palavras[i]);
         }
     }
 
-    // Construtor para reconstituir rodada existente (ex: banco de dados)
     private Rodada(long id, Item[] itens, Letra[] erradas, Jogador jogador) {
         super(id);
         this.itens = itens;
@@ -61,7 +58,6 @@ public class Rodada extends ObjetoDominioImpl {
         return new Rodada(id, itens, erradas, jogador);
     }
 
-    //Getters/Setters estáticos de configuração
 
     public static BonecoFactory getBonecoFactory() {
         return bonecoFactory;
@@ -103,7 +99,6 @@ public class Rodada extends ObjetoDominioImpl {
         maxPalavras = max;
     }
 
-    // Getters de instância
 
     public Jogador getJogador() {
         return jogador;
@@ -177,7 +172,6 @@ public class Rodada extends ObjetoDominioImpl {
 
     public void tentar(char codigo) {
         if (encerrou()) return;
-
         boolean acertouAlguma = false;
         for (Item item : itens) {
             if (item.tentar(codigo)) {
@@ -186,19 +180,17 @@ public class Rodada extends ObjetoDominioImpl {
         }
 
         if (!acertouAlguma && qtdeErros < maxErros) {
-            // usa LetraFactory via Palavra para instanciar as letras erradas
             erradas[qtdeErros] = Palavra.getLetraFactory().getLetra(Character.toLowerCase(codigo));
             qtdeErros++;
         }
 
         if (encerrou()) {
-            jogador.setPontuacao(calcularPontos());
+            jogador.atualizarPontuacao(calcularPontos());
         }
     }
 
     public void arriscar(String[] palavras) {
         if (encerrou()) return;
-
         for (int i = 0; i < itens.length; i++) {
             if (i < palavras.length) {
                 itens[i].arriscar(palavras[i]);
@@ -206,7 +198,7 @@ public class Rodada extends ObjetoDominioImpl {
         }
 
         if (encerrou()) {
-            jogador.setPontuacao(calcularPontos());
+            jogador.atualizarPontuacao(calcularPontos());
         }
     }
 
@@ -225,7 +217,8 @@ public class Rodada extends ObjetoDominioImpl {
     }
 
     public boolean encerrou() {
-        return arriscou() || descobriu() || qtdeErros >= maxErros;
+        return arriscou() || descobriu() ||
+        qtdeErros >= maxErros;
     }
 
     public int calcularPontos() {
@@ -237,7 +230,6 @@ public class Rodada extends ObjetoDominioImpl {
         return pontos;
     }
 
-    // Métodos de exibição
 
     public void exibirBoneco(Object contexto) {
         Boneco boneco = bonecoFactory.getBoneco();

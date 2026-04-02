@@ -18,6 +18,7 @@ public class BDRJogadorRepository implements JogadorRepository {
 
     @Override public long getProximoId() { return idCounter++; }
     @Override public Jogador getPorId(long id) { return null; }
+    @Override public Jogador[] getTodos() { return new Jogador[0]; }
     @Override public Jogador getPorNome(String nome) { return null; }
     @Override public void inserir(Jogador jogador) throws RepositoryException {}
     @Override public void atualizar(Jogador jogador) throws RepositoryException {}
