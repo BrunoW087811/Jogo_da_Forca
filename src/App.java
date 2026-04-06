@@ -56,108 +56,117 @@ public class App {
         gerenteDePalavras.novaPalavra("ELEFANTE",  temaAnimal.getId());
 
         Scanner teclado = new Scanner(System.in);
-        System.out.print("\nOi! Bem-vindo ao Jogo da Forca. Qual é o seu nome? ");
-        String nomeDoJogador = teclado.nextLine().trim();
-
-        // Busca o jogador ou cria um novo caso seja a primeira vez jogando
-        Jogador jogadorAtual = repositorioDeJogadores.getPorNome(nomeDoJogador);
         
-        if (jogadorAtual == null) {
-            jogadorAtual = app.getJogadorFactory().getJogador(nomeDoJogador);
-            try { repositorioDeJogadores.inserir(jogadorAtual); } catch (RepositoryException e) {}
-        }
-
-        boolean querJogarDeNovo = true;
-
-        while (querJogarDeNovo) {
-            Rodada rodadaAtual;
-
-            try {
-                rodadaAtual = gerenteDeRodadas.novaRodada(nomeDoJogador);
-            } catch (JogadorNaoEncontradoException e) {
-                System.out.println("Não consegui encontrar o seu cadastro. Encerrando o jogo.");
-                teclado.close();
-                return;
+        boolean novoJogador = true;
+        while (novoJogador) {
+            
+            System.out.println("\nOi! Bem-vindo ao Jogo da Forca. Qual é o seu nome? ");
+            String nomeDoJogador = teclado.nextLine().trim();
+    
+            // Busca o jogador ou cria um novo caso seja a primeira vez jogando
+            Jogador jogadorAtual = repositorioDeJogadores.getPorNome(nomeDoJogador);
+            
+            if (jogadorAtual == null) {
+                jogadorAtual = app.getJogadorFactory().getJogador(nomeDoJogador);
+                try { repositorioDeJogadores.inserir(jogadorAtual); } catch (RepositoryException e) {}
             }
-
-            if (rodadaAtual == null) {
-                System.out.println("Ocorreu um erro ao criar a rodada. Verifique se existem palavras cadastradas.");
-                teclado.close();
-                return;
-            }
-
-            System.out.println("\nVamos começar! O tema sorteado para você é: " + rodadaAtual.getTema().getNome());
-
-            // Mantém a rodada rodando enquanto o jogador não ganhar ou for enforcado
-            while (!rodadaAtual.encerrou()) {
-                System.out.println();
-                rodadaAtual.exibirBoneco(null);
-
-                System.out.println("\nPalavra(s):");
-                rodadaAtual.exibirItens(null);
-
-                System.out.println("Cuidado, você já errou " + rodadaAtual.getQtdeErros() + " de " + Rodada.getMaxErros() + " tentativas.");
-                System.out.print("Letras erradas até agora: ");
-                rodadaAtual.exibirLetrasErradas(null);
-                
-                System.out.println("\nPontuação parcial: " + rodadaAtual.calcularPontos() + " pts");
-                
-                System.out.print("\nDigite uma letra (ou escreva 'CHUTAR' se quiser adivinhar a palavra inteira): ");
-                String acaoDoJogador = teclado.nextLine().trim();
-
-                if (acaoDoJogador.equalsIgnoreCase("CHUTAR")) {
-                    String[] palpites = new String[rodadaAtual.getNumPalavras()];
-                    for (int i = 0; i < rodadaAtual.getNumPalavras(); i++) {
-                        System.out.print("Qual é a sua aposta para a palavra " + (i + 1) + "? ");
-                        palpites[i] = teclado.nextLine().trim();
+    
+            boolean querJogarDeNovo = true;
+    
+            while (querJogarDeNovo) {
+                Rodada rodadaAtual;
+    
+                try {
+                    rodadaAtual = gerenteDeRodadas.novaRodada(nomeDoJogador);
+                } catch (JogadorNaoEncontradoException e) {
+                    System.out.println("Não consegui encontrar o seu cadastro. Encerrando o jogo.");
+                    teclado.close();
+                    return;
+                }
+    
+                if (rodadaAtual == null) {
+                    System.out.println("Ocorreu um erro ao criar a rodada. Verifique se existem palavras cadastradas.");
+                    teclado.close();
+                    return;
+                }
+    
+                System.out.println("\nVamos começar! O tema sorteado para você é: " + rodadaAtual.getTema().getNome());
+    
+                // Mantém a rodada rodando enquanto o jogador não ganhar ou for enforcado
+                while (!rodadaAtual.encerrou()) {
+                    System.out.println();
+                    rodadaAtual.exibirBoneco(null);
+    
+                    System.out.println("\nPalavra(s):");
+                    rodadaAtual.exibirItens(null);
+    
+                    System.out.println("Cuidado, você já errou " + rodadaAtual.getQtdeErros() + " de " + Rodada.getMaxErros() + " tentativas.");
+                    System.out.print("Letras erradas até agora: ");
+                    rodadaAtual.exibirLetrasErradas(null);
+                    
+                    System.out.println("\nPontuação parcial: " + rodadaAtual.calcularPontos() + " pts");
+                    
+                    System.out.print("\nDigite uma letra (ou escreva 'CHUTAR' se quiser adivinhar a palavra inteira): ");
+                    String acaoDoJogador = teclado.nextLine().trim();
+    
+                    if (acaoDoJogador.equalsIgnoreCase("CHUTAR")) {
+                        String[] palpites = new String[rodadaAtual.getNumPalavras()];
+                        for (int i = 0; i < rodadaAtual.getNumPalavras(); i++) {
+                            System.out.print("Qual é a sua aposta para a palavra " + (i + 1) + "? ");
+                            palpites[i] = teclado.nextLine().trim();
+                        }
+                        rodadaAtual.arriscar(palpites);
+    
+                    } else if (!acaoDoJogador.isEmpty()) {
+                        char letraTentada = Character.toLowerCase(acaoDoJogador.charAt(0));
+                        rodadaAtual.tentar(letraTentada);
                     }
-                    rodadaAtual.arriscar(palpites);
-
-                } else if (!acaoDoJogador.isEmpty()) {
-                    char letraTentada = Character.toLowerCase(acaoDoJogador.charAt(0));
-                    rodadaAtual.tentar(letraTentada);
                 }
-            }
-
-            System.out.println("\nA rodada acabou!");
-            rodadaAtual.exibirBoneco(null);
-            
-            System.out.println("\nAs palavras corretas eram:");
-            rodadaAtual.exibirPalavras(null);
-
-            if (rodadaAtual.descobriu()) {
-                System.out.println("\nParabéns, " + nomeDoJogador + "! Você acertou tudo e venceu a rodada.");
-            } else {
-                System.out.println("\nVocê foi enforcado.");
-            }
-
-            System.out.println("Pontos ganhos nesta rodada: " + rodadaAtual.calcularPontos());
-            System.out.println("Sua pontuação total acumulada: " + rodadaAtual.getJogador().getPontuacao());
-
-            gerenteDeRodadas.salvarRodada(rodadaAtual);
-
-            // Coleta e exibe o ranking ordenado de todos os jogadores
-            System.out.println("\nVeja como está o placar do jogo até agora:");
-            
-            Jogador[] rankingDeJogadores = fabricaDeRepositorios.getJogadorRepository().getTodos();
-            
-            if (rankingDeJogadores != null && rankingDeJogadores.length > 0) {
-                java.util.Arrays.sort(rankingDeJogadores, (jogadorA, jogadorB) -> jogadorB.getPontuacao() - jogadorA.getPontuacao());
+    
+                System.out.println("\nA rodada acabou!");
+                rodadaAtual.exibirBoneco(null);
                 
-                int posicaoNoRanking = 1;
-                for (Jogador j : rankingDeJogadores) {
-                    System.out.printf("%dº lugar: %-20s | %d pts:%n", posicaoNoRanking++, j.getNome(), j.getPontuacao());
+                System.out.println("\nAs palavras corretas eram:");
+                rodadaAtual.exibirPalavras(null);
+    
+                if (rodadaAtual.descobriu()) {
+                    System.out.println("\nParabéns, " + nomeDoJogador + "! Você acertou tudo e venceu a rodada.");
+                } else {
+                    System.out.println("\nVocê foi enforcado.");
                 }
-            } else {
-                System.out.println("Nenhum ponto registrado ainda.");
+    
+                System.out.println("Pontos ganhos nesta rodada: " + rodadaAtual.calcularPontos());
+                System.out.println("Sua pontuação total acumulada: " + rodadaAtual.getJogador().getPontuacao());
+    
+                gerenteDeRodadas.salvarRodada(rodadaAtual);
+    
+                // Coleta e exibe o ranking ordenado de todos os jogadores
+                System.out.println("\nVeja como está o placar do jogo até agora:");
+                
+                Jogador[] rankingDeJogadores = fabricaDeRepositorios.getJogadorRepository().getTodos();
+                
+                if (rankingDeJogadores != null && rankingDeJogadores.length > 0) {
+                    java.util.Arrays.sort(rankingDeJogadores, (jogadorA, jogadorB) -> jogadorB.getPontuacao() - jogadorA.getPontuacao());
+                    
+                    int posicaoNoRanking = 1;
+                    for (Jogador j : rankingDeJogadores) {
+                        System.out.printf("%dº lugar: %-20s | %d pts:%n", posicaoNoRanking++, j.getNome(), j.getPontuacao());
+                    }
+                } else {
+                    System.out.println("Nenhum ponto registrado ainda.");
+                }
+    
+                System.out.print("\nQuer jogar mais uma partida? (S/N): ");
+                String resposta = teclado.nextLine().trim();
+                querJogarDeNovo = resposta.equalsIgnoreCase("S");
             }
-
-            System.out.print("\nQuer jogar mais uma partida? (S/N): ");
+    
+            System.out.println("\nObrigado por jogar! Até a próxima.");
+            System.out.print("Deseja entrar com outro jogador? (S/N): ");
             String resposta = teclado.nextLine().trim();
-            querJogarDeNovo = resposta.equalsIgnoreCase("S");
+            novoJogador = resposta.equalsIgnoreCase("S");
         }
-
-        System.out.println("\nObrigado por jogar! Até a próxima.");
+        System.out.println("Encerando o jogo.");
         teclado.close();
     }
 }
