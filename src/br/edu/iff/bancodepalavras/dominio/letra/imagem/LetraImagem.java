@@ -10,6 +10,5 @@ public class LetraImagem extends Letra {
 
     @Override
     public void exibir(Object contexto) {
-        // Deixado vazio conforme as instruções do projeto 
     }
 }

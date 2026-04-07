@@ -5,7 +5,11 @@ import br.edu.iff.factory.EntityFactory;
 public class TemaFactoryImpl extends EntityFactory implements TemaFactory {
 
     private static TemaFactoryImpl soleInstance;
-
+    
+    private TemaFactoryImpl(TemaRepository repository) {
+        super(repository);
+    }
+    
     public static void createSoleInstance(TemaRepository repository) {
         if (soleInstance == null) {
             soleInstance = new TemaFactoryImpl(repository);
@@ -16,9 +20,6 @@ public class TemaFactoryImpl extends EntityFactory implements TemaFactory {
         return soleInstance;
     }
 
-    private TemaFactoryImpl(TemaRepository repository) {
-        super(repository);
-    }
 
     private TemaRepository getTemaRepository() {
         return (TemaRepository) getRepository();
